@@ -20,6 +20,3 @@ cleanObj:
 cleanSnapshots:
 	rm -f data/snapshots/*.bin
 
-all:
-	cleanObj
-	cleanSnapshots

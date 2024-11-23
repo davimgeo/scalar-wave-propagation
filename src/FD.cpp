@@ -2,13 +2,19 @@
 #include "../lib/SeisMath/include/SeisMath.hpp"
 #include <string>
 #include <utility>
+#include <iomanip> 
+#include <sstream>
 
 void getSnapshots(bool snap_bool, uint16_t snap_ratio, const vec1d<float> &Ufut, uint16_t n, uint16_t Nx, uint16_t Nz) {
-  std::string data_path = "data/snapshots/snapshot_" + std::to_string(n) + ".bin";
-  if (snap_bool && (!(n % snap_ratio))) {
-    write1dVecAs2d(Ufut, Nx, Nz, data_path);
-    std::cout << "Successfully saved " << data_path << std::endl; 
-  }
+    std::ostringstream filename_stream;
+    filename_stream << "data/snapshots/snapshot_" << std::setw(5) << std::setfill('0') << n << ".bin";
+
+    std::string data_path = filename_stream.str();
+
+    if (snap_bool && (!(n % snap_ratio))) {
+        seismath::write1dVecAs2d(Ufut, Nx, Nz, data_path);
+        std::cout << "Successfully saved " << data_path << std::endl; 
+    }
 }
 
 // ensure that the user only use float type
