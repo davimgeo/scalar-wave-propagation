@@ -38,8 +38,16 @@ def update(i):
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
 
-anim = FuncAnimation(fig, update, frames=len(snapshots_files), interval=1500)
+anim = FuncAnimation(
+    fig, 
+    update, 
+    frames=len(snapshots_files), 
+    interval=200, 
+    blit=True, 
+    repeat=True
+)
 
+plt.tight_layout()
 plt.show()
 
 # ideal_parameters(dx=10, dz=10, vpMax=4500)

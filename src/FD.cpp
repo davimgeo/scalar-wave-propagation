@@ -5,16 +5,14 @@
 #include <iomanip> 
 #include <sstream>
 
-void getSnapshots(bool snap_bool, uint16_t snap_ratio, const vec1d<float> &Ufut, uint16_t n, uint16_t Nx, uint16_t Nz) {
+void getSnapshots(const vec1d<float> &Upre, uint16_t n, uint16_t Nx, uint16_t Nz) {
     std::ostringstream filename_stream;
     filename_stream << "data/snapshots/snapshot_" << std::setw(5) << std::setfill('0') << n << ".bin";
 
     std::string data_path = filename_stream.str();
 
-    if (snap_bool && (!(n % snap_ratio))) {
-        seismath::write1dVecAs2d(Ufut, Nx, Nz, data_path);
-        std::cout << "Successfully saved " << data_path << std::endl; 
-    }
+    seismath::write1dVecAs2d(Upre, Nx, Nz, data_path);
+    std::cout << "Successfully saved " << data_path << std::endl; 
 }
 
 // ensure that the user only use float type
@@ -24,41 +22,40 @@ vec1d<float> compute_2D(const vec1d<float>& property, uint16_t Nx, uint16_t Nz, 
 
     vec1d<float> Upas(Nx * Nz, 0.0f);
     vec1d<float> Upre(Nx * Nz, 0.0f);
-    vec1d<float> Ufut(Nx * Nz, 0.0f);
 
-    float const_dx = 1 / (5040.0f * dx * dx);
-    float const_dz = 1 / (5040.0f * dz * dz);
+    const float const_dx = 1 / (5040.0f * dx * dx);
+    const float const_dz = 1 / (5040.0f * dz * dz);
 
-    uint16_t snap_ratio = Nt / snap_num;
+    const uint16_t snap_ratio = Nt / snap_num;
+    const size_t source_idx = pos0 * Nx + posf;
 
     for (size_t n = 0; n < Nt; ++n) {
-        size_t source_idx = pos0 * Nx + posf;
         Upre[source_idx] += property[n] / (dx * dx);
 
         #pragma omp parallel for collapse(2)
-        for (size_t i = 4; i < Nz - 4; ++i) {
-            for (size_t j = 4; j < Nx - 4; ++j) {
+        for (size_t i = 4; i < static_cast<size_t>(Nz) - 4; ++i) {
+            for (size_t j = 4; j < static_cast<size_t>(Nx) - 4; ++j) {
                 size_t idx = i * Nx + j;
 
-                float d2u_dx2 =
-                    (-9 * Upre[idx - 4 * Nx] + 128 * Upre[idx - 3 * Nx] - 1008 * Upre[idx - 2 * Nx] +
-                     8064 * Upre[idx - Nx] - 14350 * Upre[idx] + 8064 * Upre[idx + Nx] -
-                     1008 * Upre[idx + 2 * Nx] + 128 * Upre[idx + 3 * Nx] - 9 * Upre[idx + 4 * Nx]) *
+                const float d2u_dx2 =
+                    (-9.0f * Upre[idx - 4 * Nx] + 128.0f * Upre[idx - 3 * Nx] - 1008.0f * Upre[idx - 2 * Nx] +
+                     8064.0f * Upre[idx - Nx] - 14350.0f * Upre[idx] + 8064.0f * Upre[idx + Nx] -
+                     1008.0f * Upre[idx + 2 * Nx] + 128.0f * Upre[idx + 3 * Nx] - 9.0f * Upre[idx + 4 * Nx]) *
                     const_dx;
 
-                float d2u_dz2 =
-                    (-9 * Upre[idx - 4] + 128 * Upre[idx - 3] - 1008 * Upre[idx - 2] +
-                     8064 * Upre[idx - 1] - 14350 * Upre[idx] + 8064 * Upre[idx + 1] -
-                     1008 * Upre[idx + 2] + 128 * Upre[idx + 3] - 9 * Upre[idx + 4]) *
+                const float d2u_dz2 =
+                    (-9.0f * Upre[idx - 4] + 128.0f * Upre[idx - 3] - 1008.0f * Upre[idx - 2] +
+                     8064.0f * Upre[idx - 1] - 14350.0f * Upre[idx] + 8064.0f * Upre[idx + 1] -
+                     1008.0f * Upre[idx + 2] + 128.0f * Upre[idx + 3] - 9.0f * Upre[idx + 4]) *
                     const_dz;
 
                 Upas[idx] = (d2u_dx2 + d2u_dz2) * (dt * dt * model[idx] * model[idx]) +
-                            2 * Upre[idx] - Upas[idx];
+                            2 * Upre[idx] - Upas[idx];            
             }
         }
 
-        if (snap_bool) {
-            getSnapshots(snap_bool, snap_ratio, Upre, n, Nx, Nz);
+        if (snap_bool && (n % snap_ratio == 0)) {
+            getSnapshots(Upre, n, Nx, Nz);
         }
 
         std::swap(Upas, Upre);
