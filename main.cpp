@@ -4,7 +4,6 @@
 #include <vector>
 #include "include/FD.hpp"
 #include "lib/SeisMath/include/SeisMath.hpp"
-#include "lib/SeisMath/include/utils.hpp"
 
 int main() {
     uint16_t Nx = 1150, Nz = 648, Nt = 5001;
@@ -14,10 +13,10 @@ int main() {
     vec1d<float> freqs = {5.0f, 10.0f, 40.0f, 45.0f};
 
     bool snap_bool = true;
-    uint16_t snap_num = 40;
+    uint16_t snap_num = 101;
 
-    size_t rows = 1150;
-    size_t cols = 648;
+    size_t rows = 648;
+    size_t cols = 1150;
 
     seismath::Wavelets wavelet_generator(Nt, dt, fmax, freqs);
 
@@ -28,7 +27,7 @@ int main() {
     vec1d<float> result = compute_2D(ricker, Nx, Nz, Nt, dx, dz, dt, pos0, posf, model, snap_bool, snap_num);
 
     std::string output_file = "data/wavefield_result.bin";
-  
+
     seismath::write1dVecAs2d(result, Nx, Nz, output_file);
 
     std::cout << "Wavefield result saved to " << output_file << '\n';

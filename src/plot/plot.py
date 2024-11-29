@@ -42,7 +42,7 @@ anim = FuncAnimation(
     fig, 
     update, 
     frames=len(snapshots_files), 
-    interval=200, 
+    interval=80, 
     blit=True, 
     repeat=True
 )
@@ -51,6 +51,7 @@ plt.tight_layout()
 plt.show()
 
 # ideal_parameters(dx=10, dz=10, vpMax=4500)
+
 
 
 

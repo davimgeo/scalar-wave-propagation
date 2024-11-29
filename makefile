@@ -1,17 +1,17 @@
 CXX = g++
-CXXFLAGS = -I./include -I./lib/SeisMath/include -Wall -fopenmp -O3
+CXXFLAGS = -I./include -I./lib/SeisMath/include/functions -Wall -fopenmp -O3
+LDFLAGS = -Llib/SeisMath -lSeisMath
 OUT = main.out
 
 MAIN_SRC = main.cpp
 APP_SRC = $(wildcard src/*.cpp)
-LIB_SRC = $(wildcard lib/SeisMath/src/*.cpp)
 
 OBJ = $(SRC:.cpp=.o)
 
 SRC = $(MAIN_SRC) $(APP_SRC) $(LIB_SRC) 
 
 run:
-	@$(CXX) $(SRC) $(CXXFLAGS) -o $(OUT) -lm
+	@$(CXX) $(SRC) $(CXXFLAGS) $(LDFLAGS) -o $(OUT) -lm
 	@./$(OUT)
 
 plot:

@@ -12,7 +12,7 @@ void getSnapshots(const vec1d<float> &Upre, uint16_t n, uint16_t Nx, uint16_t Nz
     std::string data_path = filename_stream.str();
 
     seismath::write1dVecAs2d(Upre, Nx, Nz, data_path);
-    std::cout << "Successfully saved " << data_path << std::endl; 
+    std::cout << "Successfully saved " << data_path << '\n'; 
 }
 
 // ensure that the user only use float type
