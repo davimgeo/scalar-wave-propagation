@@ -1,0 +1,30 @@
+# Model Parameters
+
+  Nx = 1450                   # width of the model (int)
+  Nz = 948                    # height of the model (int)
+  dx = 10.0                   # grid spacing in the x-direction (float)
+  dz = 10.0                   # grid spacing in the z-direction (float)
+
+# Boundary Condition Parameters
+
+  Extent = 300                # padding or boundary extension (int)
+  Factor = 0.0015f            # factor what will be multiplied by the pressure (float)
+
+# Modelling Parameters
+
+  Nt = 3001                   # time samples of the simulation (int)
+  dt = 1e-3f                  # time grid spacing of the simulation (float)
+
+  pos0 = 400                  # initial source position in x-direction (int)
+  posf = 500                  # final or central position of the model (int)
+
+  fmax = 10.0                 # maximum frequency of the source (float)
+  freqs = {5.0f, 10.0f, 40.0f, 45.0f}  # array of source frequencies (farray)
+
+# Snapshot Parameters
+
+  snap_bool = true            # flag to save snapshots during simulation (bool)
+  snap_num = 101              # number of snapshots to save (int)
+
+
+

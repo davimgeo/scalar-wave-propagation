@@ -1,8 +1,13 @@
-#pragma once
+#ifndef FD_HPP
+#define FD_HPP
 
-#include "../lib/SeisMath/include/SeisMath.hpp"
+#include <vector>
 
-vec1d<float> compute_2D(const vec1d<float>& property, uint16_t Nx, uint16_t Nz, uint16_t Nt,
-                        float dx, float dz, float dt, int pos0, int posf, const vec1d<float>& model,
-                        bool snap_bool, uint16_t snap_num);
+std::vector<std::vector<float>> compute_2D(
+    const std::vector<float>& property, int Nx, int Nz, 
+    int Nt, float dx, float dz, float dt, int pos0, int posf, 
+    const std::vector<std::vector<float>>& model, bool snap_bool, int snap_num
+);
+#endif // !FD_HPP
+
 
