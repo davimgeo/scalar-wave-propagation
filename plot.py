@@ -1,11 +1,12 @@
+from matplotlib import ExecutableNotFoundError
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 from matplotlib.animation import FuncAnimation
 
-nz, nx = 648 + 300, 1150 + 300
+nz, nx = 648, 1150 
 
-model = np.fromfile("data/model_extent_1150x648_300.bin", dtype=np.float32, count=nx * nz).reshape([nz, nx], order="C")
+model = np.fromfile("data/model_vp_2d_1150x648.bin", dtype=np.float32, count=nx * nz).reshape([nz, nx], order="C")
 wavefield = np.fromfile("data/wavefield_result.bin", dtype=np.float32, count=nx * nz).reshape([nz, nx], order="C")
 
 snapshots_files = np.sort(os.listdir("data/snapshots/"))
@@ -27,7 +28,7 @@ def update(i):
     ax.clear()
 
     ax.imshow(model, cmap="jet", aspect="auto", alpha=0.3)
-    
+  
     snapshot = np.fromfile(f"data/snapshots/{snapshots_files[i]}", dtype=np.float32, \
                            count=nx * nz).reshape([nz, nx], order="C")
 

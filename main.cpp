@@ -1,32 +1,37 @@
 #include <string>
-#include "src/globvar.hpp"
-#include "src/parameters.hpp"
-#include "include/wavelet.hpp"
-#include "include/aux.hpp"
-#include "include/FD.hpp"
+#include <iostream>
+#include "include/parameters.hpp"
+#include "include/modelling.hpp"
+#include "include/globvar.hpp"
 
 int main() {
-    std::string PATH = "config/parameters.txt";
-    Parameters params(PATH);
+    // Load parameters from your configuration file
+    Parameters params("config/parameters.txt");
     params.load();
 
-    Config c;
-    c.extractParameters(params);
+    // Create configuration structs and extract parameters
+    WaveletConfig wconfig;
+    wconfig.extractParameters(params);
 
-    Wavelets wavelets(&c);
+    ModelConfig mconfig;
+    mconfig.extractParameters(params);
 
-    vec1d<float> ricker = wavelets.generateRicker();
+    ModellingConfig modconfig;
+    modconfig.extractParameters(params);
 
-    vec2d<float> model = load2dVec<float>(c.Nx, c.Nz, "data/model_vp_2d_1150x648.bin");
-    vec2d<float> model_extent = pad2d(model, c.extent);
+    ConfigTypes ctype;
+    ctype.extractTypeParameters(params);
 
-    vec2d<float> result = compute_2D(
-        ricker, c.Nx, c.Nz, c.Nt, c.dx, 
-        c.dz, c.dt, c.pos0, c.posf, 
-        model_extent, c.snap_bool, c.snap_num
-    );
+    // Initialize the factory
+    Wavefield2DFactory factory;
+    factory.setConfigs(&wconfig, &mconfig, &modconfig, &ctype);
+    factory.initialize();
 
-    write1dVecAs2d(result, c.Nx, c.Nz, "data/wavelefiled_result.bin");
+    // Generate wavelet and compute FD
+    vec::vec1d<float> w = factory.generateWavelet();
+    vec::vec2d<float> result = factory.computeFD();
+
+    std::cout << "Computation completed." << std::endl;
 
     return 0;
 }

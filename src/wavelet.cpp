@@ -1,6 +1,7 @@
 #include <cmath>
-#include "../include/wavelet.hpp"
+#include "../include/modelling.hpp"
 
+// Define a free-function sinc
 template <typename T>
 static constexpr T sinc(T x) {
     if (x == T(0)) {
@@ -9,39 +10,39 @@ static constexpr T sinc(T x) {
     return std::sin(x) / x;
 }
 
-Wavelets::Wavelets(Config* c) {
-    _config = c; 
-}
+// generateRicker and generateOrmsby implementations as per the WaveletConfig and ModellingConfig pointers
+vec::vec1d<float> Wavelets::generateRicker() const {
+    vec::vec1d<float> wavelet(waveletConfig->wNt, 0.0f);
+    float t0 = 2.0f * M_PI / waveletConfig->fmax;
 
-std::vector<float> Wavelets::generateRicker() const {
-    std::vector<float> wavelet(_config->Nt, 0.0f);  
-
-    float t0 = 2.0f * M_PI / _config->fmax;
-
-    for (int i = 0; i < _config->Nt; i++) {
-        float t = i * _config->dt - t0;
-        float arg = (M_PI * _config->fmax * t) * (M_PI * _config->fmax * t);
-        wavelet[i] = (1.0f - 2.0f * arg) * std::exp(-arg);  
+    for (int i = 0; i < waveletConfig->wNt; i++) {
+        float t = i * modellingConfig->dt - t0;
+        float arg = (M_PI * waveletConfig->fmax * t) * (M_PI * waveletConfig->fmax * t);
+        wavelet[i] = (1.0f - 2.0f * arg) * std::exp(-arg);
     }
 
     return wavelet;
 }
 
-std::vector<float> Wavelets::generateOrmsby() const {
-    float t0 = (_config->Nt * _config->dt) / 2.0f;  
-    std::vector<float> wavelet(_config->Nt, 0.0f);
+vec::vec1d<float> Wavelets::generateOrmsby() const {
+    vec::vec1d<float> wavelet(waveletConfig->wNt, 0.0f);
 
-    for (int i = 0; i < _config->Nt; i++) {
-        float t = i * _config->dt - t0;
+    float t0 = (waveletConfig->wNt * modellingConfig->dt) / 2.0f;
 
-        float arg1 = pow(sinc(M_PI * _config->freqs[3] * t), 2) * pow(M_PI * _config->freqs[3], 2) / 
-                     (M_PI * _config->freqs[3] - M_PI * _config->freqs[2]);
-        float arg2 = pow(sinc(M_PI * _config->freqs[2] * t), 2) * pow(M_PI * _config->freqs[2], 2) / 
-                     (M_PI * _config->freqs[3] - M_PI * _config->freqs[2]);
-        float arg3 = pow(sinc(M_PI * _config->freqs[1] * t), 2) * pow(M_PI * _config->freqs[1], 2) / 
-                     (M_PI * _config->freqs[1] - M_PI * _config->freqs[0]);
-        float arg4 = pow(sinc(M_PI * _config->freqs[0] * t), 2) * pow(M_PI * _config->freqs[0], 2) / 
-                     (M_PI * _config->freqs[1] - M_PI * _config->freqs[0]);
+    // Ensure waveletConfig->freqs has the required size and is set
+    // Assuming waveletConfig->freqs: [f1, f2, f3, f4], with f1 < f2 < f3 < f4
+    float f1 = waveletConfig->freqs[0];
+    float f2 = waveletConfig->freqs[1];
+    float f3 = waveletConfig->freqs[2];
+    float f4 = waveletConfig->freqs[3];
+
+    for (int i = 0; i < waveletConfig->wNt; i++) {
+        float t = i * modellingConfig->dt - t0;
+
+        float arg1 = std::pow(sinc(M_PI * f4 * t), 2) * std::pow(M_PI * f4, 2) / (M_PI * (f4 - f3));
+        float arg2 = std::pow(sinc(M_PI * f3 * t), 2) * std::pow(M_PI * f3, 2) / (M_PI * (f4 - f3));
+        float arg3 = std::pow(sinc(M_PI * f2 * t), 2) * std::pow(M_PI * f2, 2) / (M_PI * (f2 - f1));
+        float arg4 = std::pow(sinc(M_PI * f1 * t), 2) * std::pow(M_PI * f1, 2) / (M_PI * (f2 - f1));
 
         wavelet[i] = (arg1 - arg2) - (arg3 - arg4);
     }

@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -I./include -Wall -fopenmp -O3 -g
+CXXFLAGS = -I./include -Wall -fopenmp -O3 
 OUT = main.out
 
 MAIN_SRC = main.cpp
